@@ -1,0 +1,12 @@
+[Unit]
+Description=WhatsApp Chat Analyzer
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/WhatsApp-Chat-Analyzer
+ExecStart=/home/ubuntu/WhatsApp-Chat-Analyzer/venv/bin/streamlit run app.py --server.port 8501 --server.address 0.0.0.0
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
