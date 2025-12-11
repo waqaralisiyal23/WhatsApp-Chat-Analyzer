@@ -5,32 +5,33 @@ import datetime
 
 def preprocess(data):
     # Pattern for separating messages and dates
-    # Create pattern for 29/07/2020, 8:12 pm - and then split with this pattern
-    pattern = '\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}\s[ap]m\s-\s'
+    # Matches: 10/13/24, 1:33 PM - 
+    pattern = '\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}\s[APap][Mm]\s-\s'
 
     # Get the messages in a separate list by breaking string using pattern
     messages = re.split(pattern, data)[1:]
     # Get all dates by matching pattern because pattern is for dates
     dates = re.findall(pattern, data)
 
-    dates2 = []
-
-    for date in dates:
-        first = date[0:12]
-        middle = date[12:len(date)-3]
-        middle = str(datetime.datetime.strptime(middle, '%I:%M %p'))
-        middle = middle[11:len(middle)-3]
-        last = ' - '
-        dates2.append(first+middle+last)
-
-    # Create DataFrame
-    # df = pd.DataFrame({'user_message': messages, 'message_date': dates})
-    df = pd.DataFrame({'user_message': messages, 'message_date': dates2})
-    # convert message_date type
-    # df['message_date'] = pd.to_datetime(
-    #     df['message_date'], format='%d/%m/%Y, %H:%M %p - ')
-    df['message_date'] = pd.to_datetime(
-        df['message_date'], format='%d/%m/%Y, %H:%M - ')
+    df = pd.DataFrame({'user_message': messages, 'message_date': dates})
+    
+    # Clean the date string by removing the trailing ' - '
+    df['message_date'] = df['message_date'].str.replace(' - ', '', regex=False)
+    # unexpected narrow no-break space character is sometimes present
+    df['message_date'] = df['message_date'].str.replace('\u202f', ' ', regex=False)
+    
+    # Convert message_date type
+    # handles 2 digit year (%y) and AM/PM (%p)
+    # Format: 10/13/24, 1:33 PM
+    df['message_date'] = pd.to_datetime(df['message_date'], format='%m/%d/%y, %I:%M %p') 
+    
+    # NOTE: The user provided snippet has a narrow no-break space (U+202F) between time and AM/PM sometimes?
+    # Actually, looking at the user request: "1:33 PM". It's a standard space or U+202F.
+    # Chrome/Android exports often use U+202F.
+    # Let's handle generic whitespace in format?
+    # pd.to_datetime format string is strict. 
+    # Let's normalize the string first.
+    
     df.rename(columns={'message_date': 'date'}, inplace=True)
     df.dropna(inplace=True)
 

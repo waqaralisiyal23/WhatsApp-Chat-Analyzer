@@ -84,7 +84,7 @@ def get_emoji_data(selected_user, df):
     emojis_list = []
     for message in df['message']:
         emojis_list.extend(
-            [emojis for emojis in message if emojis in emoji.UNICODE_EMOJI['en']])
+            [c for c in message if c in emoji.EMOJI_DATA])
 
     emoji_df = pd.DataFrame(
         Counter(emojis_list).most_common(len(Counter(emojis_list))))
