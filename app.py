@@ -8,7 +8,18 @@ st.set_page_config(initial_sidebar_state="expanded")
 
 st.sidebar.title("Whatsapp Chat Analyzer")
 
-uploaded_file = st.sidebar.file_uploader('Choose a file', type=['txt'])
+st.sidebar.markdown("### 📱 How to Export Chat")
+with st.sidebar.expander("See Instructions"):
+    st.markdown("""
+    1. Open WhatsApp.
+    2. Go to the chat.
+    3. Tap on the contact name/three dots.
+    4. Select **More > Export Chat**.
+    5. Choose **Without Media**.
+    6. Upload the `.txt` file here.
+    """)
+
+uploaded_file = st.sidebar.file_uploader("Upload your Chat .txt file", type=['txt'])
 if uploaded_file is not None:
     bytes_data = uploaded_file.getvalue()
     data = bytes_data.decode("utf-8")
